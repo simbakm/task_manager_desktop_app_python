@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from .models import Item, Tag
+from .models import Comment
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ['id', 'name']  # Include 'id' if you want to reference tags by their ID
-
+        fields = ['name'] 
+        
 class ItemSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, required=False)  # Nested serializer for tags
 
@@ -39,3 +40,12 @@ class ItemSerializer(serializers.ModelSerializer):
             instance.tags.add(tag)
 
         return instance
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Comment
+        fields=['id', 'task', 'content', 'created_at']
+    def create(self, validated_data):
+        request = self.context['request']  # Access the request context
+        validated_data['user'] = request.user  # Set the user to the authenticated user
+        return super().create(validated_data)

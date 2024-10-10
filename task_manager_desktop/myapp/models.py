@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from simple_history.models import HistoricalRecords
 
 class Tag(models.Model):
     name = models.CharField(max_length=30)
@@ -30,6 +31,16 @@ class Item(models.Model):
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     tags = models.ManyToManyField(Tag, blank=True)
     time_estimate = models.DurationField(null=True, blank=True)
+    history=HistoricalRecords()
 
     def __str__(self):
         return self.title
+
+class Comment(models.Model):
+    task=models.ForeignKey(Item, on_delete=models.CASCADE) #linking comment to a task
+    user=models.ForeignKey(User, on_delete=models.CASCADE)#the user who made the comment
+    content=models.TextField() #content of the comment
+    created_at=models.DateTimeField(auto_now_add=True)#automatic timestamp
+    
+    def __str__(self):
+        return f"comment by {self.user} on {self.task.title}"
